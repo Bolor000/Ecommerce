@@ -11,11 +11,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { useRouter } from "next/navigation";
 
 const Page = () => {
   const [products, setProuduct] = useState([]);
-  const pouter = useRouter();
 
   const fetchProduct = async () => {
     const response = await fetch("https://dummyjson.com/products?limit=4");
@@ -27,8 +25,6 @@ const Page = () => {
     fetchProduct();
   }, []);
 
-  
-
   return (
     <div className="p-10">
       <div className="text-center mb-8">
@@ -37,6 +33,13 @@ const Page = () => {
         <div className="text-gray-500">
           Check out our most popular items that customers love.
         </div>
+      </div>
+
+      <div className="flex justify-center mb-8">
+        <input
+          className="bg-gray-200 px-4 py-2 rounded-md w-64"
+          placeholder="Search"
+        />
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
@@ -67,13 +70,8 @@ const Page = () => {
         })}
       </div>
 
-      <div className="flex justify-center mt-8 ">
-        <button
-          onClick={() => {
-            pouter.push(countries[0]?.maps.googleMaps);
-          }}
-          className="bg-gray-300 rounded-sm">
-          View all products</button>
+      <div className="flex justify-center mt-8">
+        <Button>View All Products</Button>
       </div>
     </div>
   );

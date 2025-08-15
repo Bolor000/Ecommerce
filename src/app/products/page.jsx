@@ -11,41 +11,74 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link";
+
+const PAGE_SIZE = 12;
 
 const Page = () => {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const pageParam = searchParams.get("page");
   const [products, setProuduct] = useState([]);
+  const [totalProducts, setTotalProducts] = useState(0);
+  const [currentPage, setCurrentPage] = useState(pageParam ? pageParam : 1);
+  const [searchValue, setSearchValue] = useState("");
 
   const fetchProduct = async () => {
-    const response = await fetch("https://dummyjson.com/products?limit=4");
+    console.log("working");
+    let skip = 0;
+    if (currentPage > 1) {
+      skip = PAGE_SIZE * (currentPage - 1);
+    }
+
+    let url = `https://dummyjson.com/products?limit=${PAGE_SIZE}&skip=${skip}`;
+    const response = await fetch(
+      `https://dummyjson.com/products?limit=${PAGE_SIZE}&skip=${skip}`
+    );
     const data = await response.json();
     setProuduct(data.products);
+    setTotalProducts(data.total);
     console.log(data);
   };
   useEffect(() => {
     fetchProduct();
-  }, []);
+  }, [currentPage]);
+
+  const pageCount = Math.ceil(totalProducts / PAGE_SIZE);
+  const totalPage = Array.from({ length: pageCount }, (_, i) => i + 1);
+
+  const filterProducts = products.filter((product) =>
+    product.title.toLowerCase().includes(searchValue.toLowerCase())
+  );
 
   return (
     <div className="p-10">
       <div className="text-center mb-8">
         <div className="text-2xl font-bold">E-Commerce</div>
-        <div className="text-3xl font-semibold mt-2">Featured Products</div>
-        <div className="text-gray-500">
-          Check out our most popular items that customers love.
-        </div>
       </div>
-
-      <div className="flex justify-center mb-8">
+      <div className="flex mb-8">
         <input
+          value={searchValue}
+          onChange={(e) => {
+            setSearchValue(e.target.value);
+          }}
           className="bg-gray-200 px-4 py-2 rounded-md w-64"
           placeholder="Search"
         />
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-        {products.map((product) => {
+        {filterProducts.map((product) => {
           return (
-            <Card key={product.id} className="shadow-sm hover:shadow-lg">
+            <Card
+              onClick={() => {
+                setSearchValue(page);
+                router.push(`?page=${page}`);
+              }}
+              key={product.id}
+              className="shadow-sm hover:shadow-lg"
+            >
               <CardContent className="p-4">
                 <img
                   src={product.images[0]}
@@ -70,8 +103,24 @@ const Page = () => {
         })}
       </div>
 
-      <div className="flex justify-center mt-8">
-        <Button>View All Products</Button>
+      <div className="flex justify-center mt-8 gap-2">
+        {Array.from({ length: pageCount }, (_, i) => {
+          const page = i + 1;
+          return (
+            <button
+              key={page}
+              onClick={() => {
+                setCurrentPage(page);
+                router.push(`?page=${page}`);
+              }}
+              className={`px-3 py-1 border rounded ${
+                currentPage === page ? "bg-black text-white" : "bg-white"
+              }`}
+            >
+              {page}
+            </button>
+          );
+        })}
       </div>
     </div>
   );

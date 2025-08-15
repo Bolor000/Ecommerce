@@ -12,6 +12,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 const Page = () => {
   const [products, setProuduct] = useState([]);
@@ -42,38 +43,37 @@ const Page = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
         {products.map((product) => {
           return (
-            <Card key={product.id} className="shadow-sm hover:shadow-lg">
-              <CardContent className="p-4">
-                <img
-                  src={product.images[0]}
-                  alt={product.title}
-                  className="w-full h-48 object-contain mb-4"
-                />
-                <CardTitle className="text-lg font-semibold">
-                  {product.title}
-                </CardTitle>
-                <CardDescription className="capitalize">
-                  {product.category}
-                </CardDescription>
-                <div className="flex items-center justify-between mt-4">
-                  <div className="font-bold">${product.price}</div>
-                  <div className="bg-gray-200 rounded-sm" size="sm">
-                    View Details
+            <Link href="/ProductsName">
+              <Card key={product.id} className="shadow-sm hover:shadow-lg">
+                <CardContent className="p-4">
+                  <img
+                    src={product.images[0]}
+                    alt={product.title}
+                    className="w-full h-48 object-contain mb-4"
+                  />
+                  <CardTitle className="text-lg font-semibold">
+                    {product.title}
+                  </CardTitle>
+                  <CardDescription className="capitalize">
+                    {product.category}
+                  </CardDescription>
+                  <div className="flex items-center justify-between mt-4">
+                    <div className="font-bold">${product.price}</div>
+                    <div className="bg-gray-200 rounded-sm" size="sm">
+                      View Details
+                    </div>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            </Link>
           );
         })}
       </div>
 
       <div className="flex justify-center mt-8 ">
-        <button
-          onClick={() => {
-            pouter.push(countries[0]?.maps.googleMaps);
-          }}
-          className="bg-gray-300 rounded-sm">
-          View all products</button>
+        <Link href="/products">
+          <button className="bg-gray-300 rounded-sm">View all products</button>
+        </Link>
       </div>
     </div>
   );

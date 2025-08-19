@@ -16,10 +16,12 @@ import Link from "next/link";
 
 const Page = () => {
   const [products, setProuduct] = useState([]);
-  const pouter = useRouter();
+  const router = useRouter();
 
   const fetchProduct = async () => {
-    const response = await fetch("https://dummyjson.com/products?limit=4");
+    const response = await fetch(
+      "https://dummyjson.com/products?limit=4&skip=0"
+    );
     const data = await response.json();
     setProuduct(data.products);
     console.log(data);
@@ -27,9 +29,6 @@ const Page = () => {
   useEffect(() => {
     fetchProduct();
   }, []);
-
-  
-
   return (
     <div className="p-10">
       <div className="text-center mb-8">
@@ -43,9 +42,15 @@ const Page = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
         {products.map((product) => {
           return (
-            <Link href="/ProductsName">
-              <Card key={product.id} className="shadow-sm hover:shadow-lg">
-                <CardContent className="p-4">
+            <div
+              key={product.id}
+              onClick={() => router.push(`/products/${product.id}`)}
+            >
+              <Card
+                key={product.id}
+                className="shadow-sm hover:shadow-lg h-[400px]"
+              >
+                <div className="p-4">
                   <img
                     src={product.images[0]}
                     alt={product.title}
@@ -59,20 +64,18 @@ const Page = () => {
                   </CardDescription>
                   <div className="flex items-center justify-between mt-4">
                     <div className="font-bold">${product.price}</div>
-                    <div className="bg-gray-200 rounded-sm" size="sm">
-                      View Details
-                    </div>
+                    <Button>View Details</Button>
                   </div>
-                </CardContent>
+                </div>
               </Card>
-            </Link>
+            </div>
           );
         })}
       </div>
 
       <div className="flex justify-center mt-8 ">
         <Link href="/products">
-          <button className="bg-gray-300 rounded-sm">View all products</button>
+          <Button>View all products</Button>
         </Link>
       </div>
     </div>

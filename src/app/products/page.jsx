@@ -11,45 +11,38 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 const PAGE_SIZE = 12;
 
 const Page = () => {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const pageParam = searchParams.get("page");
   const [products, setProuduct] = useState([]);
-  const [totalProducts, setTotalProducts] = useState(0);
-  const [currentPage, setCurrentPage] = useState(pageParam ? pageParam : 1);
+  const [totalProduct, setTotalProduct] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
   const [searchValue, setSearchValue] = useState("");
+  const router = useRouter();
 
   const fetchProduct = async () => {
-    console.log("working");
-    let skip = 0;
-    if (currentPage > 1) {
-      skip = PAGE_SIZE * (currentPage - 1);
+    const PASS = PAGE_SIZE * (currentPage - 1);
+    let url = `https://dummyjson.com/products?limit=${PAGE_SIZE}&skip=${PASS}`;
+
+    if (searchValue !== "") {
+      url = `https://dummyjson.com/products/search?q=${searchValue}&limit=${PAGE_SIZE}&skip=${PASS}`;
     }
 
-    let url = `https://dummyjson.com/products?limit=${PAGE_SIZE}&skip=${skip}`;
-    const response = await fetch(
-      `https://dummyjson.com/products?limit=${PAGE_SIZE}&skip=${skip}`
-    );
+    const response = await fetch(url);
     const data = await response.json();
     setProuduct(data.products);
-    setTotalProducts(data.total);
+    setTotalProduct(data.total);
     console.log(data);
   };
   useEffect(() => {
     fetchProduct();
-  }, [currentPage]);
-
-  const pageCount = Math.ceil(totalProducts / PAGE_SIZE);
-  const totalPage = Array.from({ length: pageCount }, (_, i) => i + 1);
-
-  const filterProducts = products.filter((product) =>
-    product.title.toLowerCase().includes(searchValue.toLowerCase())
+  }, [currentPage, searchValue]);
+  const pages = Array.from(
+    { length: Math.ceil(totalProduct / 12) },
+    (_, i) => i + 1
   );
 
   return (
@@ -57,70 +50,74 @@ const Page = () => {
       <div className="text-center mb-8">
         <div className="text-2xl font-bold">E-Commerce</div>
       </div>
-      <div className="flex mb-8">
-        <input
-          value={searchValue}
-          onChange={(e) => {
-            setSearchValue(e.target.value);
-          }}
-          className="bg-gray-200 px-4 py-2 rounded-md w-64"
-          placeholder="Search"
-        />
-      </div>
+      <input
+        value={searchValue}
+        onChange={(e) => {
+          setSearchValue(e.target.value);
+          setCurrentPage(1);
+        }}
+        className="bg-gray-100 px-4 py-2 rounded-md w-64 mb-6"
+        placeholder="Search..."
+      />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-        {filterProducts.map((product) => {
+        {products.map((product) => {
           return (
-            <Card
-              onClick={() => {
-                setSearchValue(page);
-                router.push(`?page=${page}`);
-              }}
+            <div
               key={product.id}
-              className="shadow-sm hover:shadow-lg"
+              onClick={() => router.push(`/products/${product.id}`)}
             >
-              <CardContent className="p-4">
-                <img
-                  src={product.images[0]}
-                  alt={product.title}
-                  className="w-full h-48 object-contain mb-4"
-                />
-                <CardTitle className="text-lg font-semibold">
-                  {product.title}
-                </CardTitle>
-                <CardDescription className="capitalize">
-                  {product.category}
-                </CardDescription>
-                <div className="flex items-center justify-between mt-4">
-                  <div className="font-bold">${product.price}</div>
-                  <div className="bg-gray-200 rounded-sm" size="sm">
-                    View Details
+              <Card
+                key={product.id}
+                className="shadow-sm hover:shadow-lg h-[400px]"
+              >
+                <div className="p-4 flex flex-col flex-grow">
+                  <img
+                    src={product.images[0]}
+                    alt={product.title}
+                    className="w-full h-48 object-contain mb-4"
+                  />
+                  <CardTitle className="text-lg font-semibold">
+                    {product.title}
+                  </CardTitle>
+                  <CardDescription className="capitalize">
+                    {product.category}
+                  </CardDescription>
+                  <div className="flex items-center justify-between mt-4">
+                    <div className="font-bold">${product.price}</div>
+                    <Button>View Details</Button>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
+              </Card>
+            </div>
           );
         })}
       </div>
-
-      <div className="flex justify-center mt-8 gap-2">
-        {Array.from({ length: pageCount }, (_, i) => {
-          const page = i + 1;
+      <div>
+        <Button
+          onClick={() => setCurrentPage(currentPage - 1)}
+          disabled={currentPage === 1}
+        >
+          next
+        </Button>
+        {pages.map((page) => {
           return (
-            <button
+            <Button
               key={page}
-              onClick={() => {
-                setCurrentPage(page);
-                router.push(`?page=${page}`);
-              }}
-              className={`px-3 py-1 border rounded ${
-                currentPage === page ? "bg-black text-white" : "bg-white"
-              }`}
+              onClick={() => setCurrentPage(page)}
+              className={`px-4 py-2 mx-1 mt-7 rounded-lg border text-sm font-medium transition`}
+              variant={page === currentPage ? "default" : "secondary"}
             >
               {page}
-            </button>
+            </Button>
           );
         })}
+        <Button
+          onClick={() => setCurrentPage(currentPage + 1)}
+          disabled={currentPage === 17}
+        >
+          next
+        </Button>
       </div>
     </div>
   );

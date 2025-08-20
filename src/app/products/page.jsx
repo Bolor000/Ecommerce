@@ -35,11 +35,12 @@ const Page = () => {
     const data = await response.json();
     setProuduct(data.products);
     setTotalProduct(data.total);
-    console.log(data);
+    // console.log(data);
   };
   useEffect(() => {
     fetchProduct();
   }, [currentPage, searchValue]);
+
   const pages = Array.from(
     { length: Math.ceil(totalProduct / 12) },
     (_, i) => i + 1
